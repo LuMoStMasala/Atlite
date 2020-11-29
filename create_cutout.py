@@ -2,7 +2,7 @@
 """
 Created on Fri Nov  6 19:33:30 2020
 
-@author: Monisha
+@author: Monisha, Ludwig, Stefan
 """
 
 
