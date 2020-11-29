@@ -19,5 +19,7 @@ cutout = atlite.Cutout(name="europe-2011-01",
                        years=slice(2011, 2011),
                        months=slice(1,1)
                        )
+
+#%%
 #4: Prepare cutout
 
