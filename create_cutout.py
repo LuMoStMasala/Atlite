@@ -55,3 +55,6 @@ cutout = atlite.Cutout(name="germany_2011_v01",
 # Output
 # =============================================================================
 cutout
+cutout.coords #get coordinates
+cutout.data
+cutout.wind()
