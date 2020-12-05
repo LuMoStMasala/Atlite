@@ -2,12 +2,14 @@
 """
 Created on Fri Nov  6 19:33:30 2020
 
-@author: Monisha, Ludwig, Stefan
+@author: Monisha, Ludwig, Stefan (a.k.a. "LuMoSt Masala")
 """
 
 
 import atlite
 import logging
+import time
+import subprocess
 
 #get current working directory (cwd)
 import os
@@ -17,15 +19,39 @@ cfp = os.path.realpath(__file__) #current file path
 
 logging.basicConfig(level=logging.INFO)
 
-# Create cutout
-cutout = atlite.Cutout(name="europe-2011-01-v2",
-                       cutout_dir="C:\MasalaAtlite\ATLITE\cutouts",
-                       module="era5",
-                       xs=slice(-13.6913, 1.7712),
-                       ys=slice(49.9096, 60.8479),
-                       years=slice(2011, 2011),
-                       months=slice(1,1)
-                       )
-#4: Prepare cutout
+#from define_cutout import cutout
+# =============================================================================
+# Define cutout
+# =============================================================================
+# import subprocess
+# print("Defining cutout information")
+# cu = subprocess.Popen("define_cutout.py", shell=True)
 
-cutout.prepare()
+# from subprocess import check_output
+# out = check_output(["ntpq", "-p"])
+
+#import subprocess
+#p = subprocess.Popen("define_cutout.py", shell=True)
+#a = subprocess.check_output('define_cutout.py', shell=True)
+# p = subprocess.Popen("define_cutout.py", stdout=subprocess.PIPE)
+# result = p.communicate()[0]
+# print(result)
+
+cutout = atlite.Cutout(name="germany_2011_v01",
+                        cutout_dir="C:\MasalaAtlite\ATLITE\cutouts",
+                        module="era5",
+                        xs=slice(5.5, 15.5),
+                        ys=slice(47.2, 55.1),
+                        years=slice(2011, 2011),
+                        months=slice(1,1)
+                        )
+
+# =============================================================================
+# Create/Prepare cutout 
+# =============================================================================
+#cutout.prepare()
+
+# =============================================================================
+# Output
+# =============================================================================
+cutout
