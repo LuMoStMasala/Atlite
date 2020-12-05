@@ -9,10 +9,17 @@ Created on Fri Nov  6 19:33:30 2020
 import atlite
 import logging
 
+#get current working directory (cwd)
+import os
+cwd = os.getcwd() #current working directory
+cfp = os.path.realpath(__file__) #current file path
+
+
 logging.basicConfig(level=logging.INFO)
 
-cutout = atlite.Cutout(name="europe-2011-01",
-                       cutout_dir="C:/Users/Monisha/ProjectLumost",
+# Create cutout
+cutout = atlite.Cutout(name="europe-2011-01-v2",
+                       cutout_dir="C:\MasalaAtlite\ATLITE\cutouts",
                        module="era5",
                        xs=slice(-13.6913, 1.7712),
                        ys=slice(49.9096, 60.8479),
@@ -21,3 +28,4 @@ cutout = atlite.Cutout(name="europe-2011-01",
                        )
 #4: Prepare cutout
 
+cutout.prepare()
