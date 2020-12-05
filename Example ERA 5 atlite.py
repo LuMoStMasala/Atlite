@@ -14,7 +14,7 @@ import atlite
 import logging
 
 #define logging
-logging.basicConfig(level = logging.DEBUG)
+logging.basicConfig(level = logging.INFO)
 
 # =============================================================================
 # Defining the cutout extent
@@ -35,7 +35,7 @@ logging.basicConfig(level = logging.DEBUG)
 #                        )
 
 #%%
-cutout = atlite.Cutout(name="europe-2011-01",
+cutout = atlite.Cutout(name="europe-2011-01-v2",
                        cutout_dir = "C:/Users/stefa/Studium/Master Sustainable Systems Engineering/3.Semester/Masters Project/Code/Example ERA 5",
                        module="era5",
                        xs=slice(-13.6913, 1.7712),
@@ -46,4 +46,4 @@ cutout = atlite.Cutout(name="europe-2011-01",
 
 #%%
 #run the following line seperately
-cutout.prepare()
+#cutout.prepare()
