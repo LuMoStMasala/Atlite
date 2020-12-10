@@ -29,3 +29,4 @@ cutout = atlite.Cutout(name="europe-2011-01-v2",
 #4: Prepare cutout
 
 #cutout.prepare()
+
