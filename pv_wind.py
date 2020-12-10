@@ -64,3 +64,14 @@ shp = shpreader.Reader(shpreader.natural_earth(resolution='10m', category='cultu
 de_record = list(filter(lambda c: c.attributes['ISO_A2'] == 'DE', shp.records()))[0]
 de = gpd.GeoSeries({**de_record.attributes, 'geometry':de_record.geometry})
 x1, y1, x2, y2 = de['geometry'].bounds
+
+#%%
+cutout = atlite.Cutout('germany-2012',
+                       module='era5',
+                       xs=slice(x1-.2,x2+.2), ys=slice(y1-.2, y2+.2),
+                       years=slice(2012, 2012),
+                       months=slice(1,12))
+#%%
+cutout.prepare()
+
+
