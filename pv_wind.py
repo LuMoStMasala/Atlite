@@ -66,11 +66,14 @@ de = gpd.GeoSeries({**de_record.attributes, 'geometry':de_record.geometry})
 x1, y1, x2, y2 = de['geometry'].bounds
 
 #%%
-cutout = atlite.Cutout('germany-2012',
-                       module='era5',
-                       xs=slice(x1-.2,x2+.2), ys=slice(y1-.2, y2+.2),
-                       years=slice(2012, 2012),
-                       months=slice(1,12))
+cutout = atlite.Cutout(name="germany_2012_v01",
+                        cutout_dir="C:\MasalaAtlite\ATLITE\cutouts",
+                        module="era5",
+                        xs=slice(5.5, 15.5),
+                        ys=slice(47.2, 55.1),
+                        years=slice(2012, 2012),
+                        months=slice(1,12)
+                        )
 #%%
 cutout.prepare()
 
