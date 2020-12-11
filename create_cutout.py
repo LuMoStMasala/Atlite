@@ -2,59 +2,69 @@
 """
 Created on Fri Nov  6 19:33:30 2020
 
-@author: Monisha, Ludwig, Stefan (a.k.a. "LuMoSt Masala")
+Main author: Ludwig
+Other authors: Monisha, Stefan (a.k.a. "LuMoSt Masala")
 """
 
 
 import atlite
 import logging
-import time
-import subprocess
+import userdefined_atlite_functions
 
-#get current working directory (cwd)
+# Get current working directory (cwd)
 import os
 cwd = os.getcwd() #current working directory
 cfp = os.path.realpath(__file__) #current file path
 
-
+# Set logging type
 logging.basicConfig(level=logging.INFO)
 
-#from define_cutout import cutout
-# =============================================================================
-# Define cutout
-# =============================================================================
-# import subprocess
-# print("Defining cutout information")
-# cu = subprocess.Popen("define_cutout.py", shell=True)
+#introduce variable that flips every time the script runs
+if 'flipVar' in globals():
+    if flipVar == True:
+        flipVar = False
+    else:
+        flipVar = True
+else:
+    flipVar = True
+    
+# Define whether new cutout should be created
+newCutout = False
 
-# from subprocess import check_output
-# out = check_output(["ntpq", "-p"])
+if newCutout == False:
+    loadCutout = True
+else:
+    loadCutout = False
 
-#import subprocess
-#p = subprocess.Popen("define_cutout.py", shell=True)
-#a = subprocess.check_output('define_cutout.py', shell=True)
-# p = subprocess.Popen("define_cutout.py", stdout=subprocess.PIPE)
-# result = p.communicate()[0]
-# print(result)
+# Define cutout directory and name
+cutout_directory = 'C:\MasalaAtlite\ATLITE\cutouts'
+cutout_name = 'newCutout_name_example23'
 
-cutout = atlite.Cutout(name="germany_2011_v01",
-                        cutout_dir="C:\MasalaAtlite\ATLITE\cutouts",
-                        module="era5",
-                        xs=slice(5.5, 15.5),
-                        ys=slice(47.2, 55.1),
-                        years=slice(2011, 2011),
-                        months=slice(1,1)
-                        )
+# Check cutout directory (not working yet)
+#check_cutout_dir(cutout_std_directory, cutout_name)
+
+
+
 
 # =============================================================================
 # Create/Prepare cutout 
 # =============================================================================
-#cutout.prepare()
+if flipVar == True and newCutout == True:
+    cutout = atlite.Cutout(name = cutout_name,
+                            cutout_dir = cutout_directory,
+                            module = "era5",
+                            xs = slice(-13.6913, 1.7712),
+                            ys = slice(49.9096, 60.8479),
+                            years = slice(2011, 2011),
+                            months = slice(1,1)
+                            )
 
+elif flipVar == False and 'cutout' in globals():
+    # only exectued if cutout variable was already created
+    cutout.prepare()
+    
 # =============================================================================
-# Output
+# Load cutout
 # =============================================================================
-cutout
-cutout.coords #get coordinates
-cutout.data
-cutout.wind()
+if loadCutout == True:
+    cutout_Loading_test = atlite.Cutout(name = cutout_name, cutout_dir = cutout_directory)
