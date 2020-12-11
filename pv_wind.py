@@ -14,7 +14,7 @@ import pgeocode
 from collections import OrderedDict
 
 import matplotlib.pyplot as plt
-%matplotlib inline
+
 
 import seaborn as sns
 sns.set_style('whitegrid')
@@ -66,6 +66,18 @@ de = gpd.GeoSeries({**de_record.attributes, 'geometry':de_record.geometry})
 x1, y1, x2, y2 = de['geometry'].bounds
 
 #%%
+import logging
+import time
+import subprocess
+
+#get current working directory (cwd)
+import os
+cwd = os.getcwd() #current working directory
+cfp = os.path.realpath(__file__) #current file path
+
+
+logging.basicConfig(level=logging.INFO)
+
 cutout = atlite.Cutout(name="germany_2012_v01",
                         cutout_dir="C:\MasalaAtlite\ATLITE\cutouts",
                         module="era5",
