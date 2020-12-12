@@ -22,6 +22,7 @@ sns.set_style('whitegrid')
 import requests
 import os
 import zipfile
+import pickle
 
 #%%
 
@@ -88,6 +89,10 @@ cutout = atlite.Cutout(name="germany_2012_v01",
                         )
 #%%
 cutout.prepare()
+
+
+#%% Pickle the cutout
+cutout_pickled = pickle.dump(cutout, open( "save.p", "wb" ))
 
 #%% Generate capacity layout
 
@@ -156,7 +161,7 @@ def capacity_layout(cutout, typ, cap_range=None, until=None):
                               'lon': cutout.grid_coordinates()[:,0],
                               'lat': cutout.grid_coordinates()[:,1]})
 
-    nearest_cell = cutout.data.sel({'x': data.lon.values,
+    nearest_cell = cutout.coords._data.sel({'x': data.lon.values,
                                     'y': data.lat.values},
                                    'nearest').coords
 
