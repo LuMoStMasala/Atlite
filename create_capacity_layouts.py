@@ -221,57 +221,55 @@ plt.title("Installed PV in Germany until 2012")
 plt.tight_layout()
 # <codecell>
 
-pv = cutout.pv(panel="CSi", orientation={'slope': 30., 'azimuth': 0.}, layout=solar_layout)
+# pv = cutout.pv(panel="CSi", orientation={'slope': 30., 'azimuth': 0.}, layout=solar_layout)
+pv = cutout.pv(panel="CSi", orientation='latitude_optimal', layout=solar_layout)
 
 #compare = pd.DataFrame(dict(atlite=pv.to_pandas(), opsd=opsd['DE_solar_generation_actual'])) /1e3 # in GW
 compare = pd.DataFrame(dict(atlite=pv.to_pandas().iloc[0], opsd=opsd['DE_solar_generation_actual'])) /1e3 # in GW
 
-compare.resample('1W').mean().plot(figsize=(8,5))
-plt.ylabel("Feed-In [GW]")
-plt.title('PV time-series Germany 2012')
-plt.tight_layout()
+# compare.resample('1W').mean().plot(figsize=(8,5))
+# plt.ylabel("Feed-In [GW]")
+# plt.title('PV time-series Germany 2012')
+# plt.tight_layout()
 
 
 # <codecell>
 # =============================================================================
 # Create layout with even capacity distribution
 # =============================================================================
-# Create equal distribution array
-dimx = 39
-dimy = 32
 
-# capacity value for even distribution
-evenCap = 2.6
+# Required total installed capacity in GW
+# installedCap = 49
+installedCap = solar_layout.data.sum() / 1e3
 
-# # new Data: even capacity distribution
-# evenDistribution = np.full((dimy, dimx), evenCap, dtype=float)
+# New layout
+evenDistribution_GER = solar_layout.data.copy()
 
-# # new layout (from copy of solar layout)
-# even_layout = solar_layout
-# even_layout.rename('Even Capacity Distribution [MW]')
-# even_layout.data = evenDistribution
+# Assign dummy value of 1 to each cell with installed capacity in GER
+evenDistribution_GER[evenDistribution_GER > 0] = 1
 
-# # plot new layout
-# even_layout.plot(cmap="cool", size=8, aspect=1)
-# plt.title("Even Capacity Distribution [MW]")
-# plt.tight_layout()
+# Number of cells withing German boarder
+n_cells = int(evenDistribution_GER.sum())
 
-# New layout 2
-evenDistribution_GER = solar_layout.data
+
+# Average capacity for each cell
+evenCap = installedCap * 1000 / n_cells
+
 
 # Assign new even capacity to only the cells that contain solar capacity
 evenDistribution_GER[evenDistribution_GER > 0] = evenCap
 
-even_GER_layout = solar_layout
+even_GER_layout = solar_layout.copy()
 even_GER_layout.rename('Even Capacity Distribution [MW]')
 even_GER_layout.data = evenDistribution_GER
 
 even_GER_layout.plot(cmap="cool", size=8, aspect=1)
-plt.title("Even Capacity Distribution within German boarder: " + str(evenCap) + " MW")
+plt.title("Even Capacity Distribution within German boarder: " + str(round(evenCap,2)) + " MW")
 plt.tight_layout()
 
 # Compute electricity generation with atlite
-pv_even = cutout.pv(panel="CSi", orientation={'slope': 30., 'azimuth': 0.}, layout=even_GER_layout)
+#pv_even = cutout.pv(panel="CSi", orientation={'slope': 30., 'azimuth': 0.}, layout=even_GER_layout)
+pv_even = cutout.pv(panel="CSi", orientation='latitude_optimal', layout=even_GER_layout)
 pv_even_output = pv_even.to_pandas().iloc[0]
 
 # Determine time step length in hours (h)
@@ -279,11 +277,45 @@ dt = pv_even_output.index[1]-pv_even_output.index[0]
 dt = dt.days * 24 + dt.seconds // 3600
 
 # Determine total electricity generation 
-E_tot = pv_even_output.sum() * dt / 1000 # in GWh
+E_tot = pv_even_output.sum() * dt / 1e6 # in TWh
 
+# Determine total installed capacity in GW
+P_tot = even_GER_layout.data.sum() / 1e3
+
+
+# Plot 1-week averaged electricity generation in GW
+plt.figure()
+pv_even_output.divide(1000).resample('1W').mean().plot(figsize=(8,5))
+plt.ylabel("Feed-In [GW]")
+plt.title('PV time-series (weekly avrg.) in Germany with equal capacity distribution (' + str(round(evenCap,1)) + " MW).\n Total electricity generation E_tot = " + str(round(E_tot,1)) + " GWh")
+plt.tight_layout()
+
+# Output
+print('==============================================')
+print('Findings:')
+print('Number of cells in Germany: ' + str(n_cells))
+print('Installed capacity in each cell: ' + str(round(evenCap,2)) + ' MW')
+print('Total installed capacity: ' + str(round(P_tot,2)) + ' GW')
+print('Total annual electricity generation: ' + str(round(E_tot,3)) + ' TWh/a')
+
+# =============================================================================
+# Comparison
+# =============================================================================
+curve1 = opsd['DE_solar_generation_actual'] # in MW
+curve2 = pv.to_pandas().iloc[0] # in MW
+curve3 = pv_even.to_pandas().iloc[0] # in MW
+compare = pd.DataFrame(dict(opsd=curve1, atlite_real=curve2, atlite_even=curve3)) /1e3 # in GW
 
 plt.figure()
-pv_even_output.resample('1W').mean().plot(figsize=(8,5))
+compare.resample('1W').mean().plot(figsize=(8,5))
 plt.ylabel("Feed-In [GW]")
-plt.title('PV time-series Germany with equal capacity distribution (' + str(evenCap) + " MW).\n Total electricity generation E_tot = " + str(round(E_tot,1)) + " GWh")
+plt.title('Comparison of PV time-series in Germany 2012\n' +\
+          'Total installed capacity in Atlite P_tot = ' + str(round(P_tot,2)) + ' GW')
 plt.tight_layout()
+
+#plt.close('all')
+
+# =============================================================================
+# Wind capacity layout
+# =============================================================================
+wind_layout = capacity_layout(cutout, 'Windkraft', until='2012')
