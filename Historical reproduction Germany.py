@@ -24,6 +24,9 @@ import os
 import zipfile
 import pickle
 
+import cartopy.io.shapereader as shpreader
+import geopandas as gpd
+
 #%%
 
 def download_file(url, local_filename):
@@ -59,8 +62,6 @@ with zipfile.ZipFile(eeg_fn, "r") as zip_ref:
     
 #%%Create a cutout from ERA-5
 
-import cartopy.io.shapereader as shpreader
-import geopandas as gpd
 shp = shpreader.Reader(shpreader.natural_earth(resolution='10m', category='cultural', name='admin_0_countries'))
 de_record = list(filter(lambda c: c.attributes['ISO_A2'] == 'DE', shp.records()))[0]
 de = gpd.GeoSeries({**de_record.attributes, 'geometry':de_record.geometry})
@@ -80,7 +81,7 @@ cfp = os.path.realpath(__file__) #current file path
 logging.basicConfig(level=logging.INFO)
 
 cutout = atlite.Cutout(name="germany_2012_v01",
-                        cutout_dir="C:\MasalaAtlite\ATLITE\cutouts",
+                        cutout_dir="/home/stefan/Mastersproject/Cutouts",
                         module="era5",
                         xs=slice(5.5, 15.5),
                         ys=slice(47.2, 55.1),
@@ -161,7 +162,7 @@ def capacity_layout(cutout, typ, cap_range=None, until=None):
                               'lon': cutout.grid_coordinates()[:,0],
                               'lat': cutout.grid_coordinates()[:,1]})
 
-    nearest_cell = cutout.coords._data.sel({'x': data.lon.values,
+    nearest_cell = cutout.data.sel({'x': data.lon.values,
                                     'y': data.lat.values},
                                    'nearest').coords
 
@@ -189,7 +190,7 @@ def capacity_layout(cutout, typ, cap_range=None, until=None):
 
 solar_layout = capacity_layout(cutout, 'Solarstrom',cap_range= None, until="2012")
 
-#%%
+ #%%
 
 solar_layout.plot(cmap="inferno_r", size=8, aspect=1)
 plt.title("Installed PV in Germany until 2012")
