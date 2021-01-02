@@ -61,15 +61,21 @@ DOWNLOAD_DIR = 'downloads'
 import platform
 if platform.node() == 'T520': # identify Ludwigs Linux Computer
     CUTOUT_DIRECTORY = r'/home/ludwig/AtliteMasala/cutouts'
+elif platform.node() == 'DESKTOP-580IP6U': # identify Ludwigs Win Computer
+    CUTOUT_DIRECTORY = r"C:\MasalaAtlite\ATLITE\cutouts"
 elif platform.node() == 'Computername_User_01':
     CUTOUT_DIRECTORY = r'Cutout_direcory for User 01'
 elif platform.node() == 'Computername_User_02':
     CUTOUT_DIRECTORY = r'Cutout_direcory for User 02'
+elif platform.node() == 'Computername_User_03':
+    CUTOUT_DIRECTORY = r'Cutout_direcory for User 03'
 else:
     CUTOUT_DIRECTORY = r"C:\MasalaAtlite\ATLITE\cutouts"
 if not os.path.isdir(CUTOUT_DIRECTORY):
     os.mkdir(CUTOUT_DIRECTORY)
     print('Local cutout-directory "' + CUTOUT_DIRECTORY + '" created.')
+    
+# Identify separator for paths to make code run on Windows and Linux
 if platform.system()=='Linux':
     DIR_SEP = r"/"
 else:
