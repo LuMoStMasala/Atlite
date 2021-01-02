@@ -2,10 +2,3 @@
 [Name]
 [What did I do]
 [What are my Key-Insights]
-
-20.12.2020
-Ludwig
-1.  I tried to understand the PV/Wind comparison example.
-2.  I tried to plot cutouts but it didn't work out.
-    I had to install descartes for a plot with: pip install descartes
-    I was able to plot the globe with country boarders.
