@@ -24,3 +24,14 @@ def check_cutout_dir(cutout_std_directory, cutout_name):
         
 def test_if_udfFun_Imported():
     print('The file "userdefined_atlite_functions.py" is already loaded.')
+
+
+def open_atlite_directory():
+# Opens the directory of atlite module in file explorer
+    import os
+    import sys
+    if 'atlite' in sys.modules:
+        package_dir = os.path.dirname(os.path.realpath(atlite.__file__))
+        os.startfile(package_dir)
+    else:
+        print('Atlite module was not imported.')

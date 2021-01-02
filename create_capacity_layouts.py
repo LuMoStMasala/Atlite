@@ -4,6 +4,12 @@ Created on Fri Nov  6 19:33:30 2020
 
 Main author: Ludwig
 Other authors: Monisha, Stefan (a.k.a. "LuMoSt Masala")
+
+Version 1.0.1
+Changelog:
+    31.12.2020:
+        function download_file() was modified to specify download folder
+        Therefore, "DOWNLOAD_DIR" was created to define local download dir
 """
 # =============================================================================
 # # Import packages
@@ -19,6 +25,7 @@ import seaborn as sns
 import requests
 import cartopy.io.shapereader as shpreader
 import geopandas as gpd
+
 
 # Modules maybe needed later
 #import xarray as xr
@@ -47,22 +54,46 @@ if os.path.dirname(os.path.realpath(__file__)) != os.getcwd():
     print('Working directory was changed to ' + \
           os.path.dirname(os.path.realpath(__file__)))
 
+# Define download directory
+DOWNLOAD_DIR = 'downloads'
+
+# Define cutout name and directory
+import platform
+if platform.node() == 'T520': # identify Ludwigs Linux Computer
+    CUTOUT_DIRECTORY = r'/home/ludwig/AtliteMasala/cutouts'
+elif platform.node() == 'Computername_User_01':
+    CUTOUT_DIRECTORY = r'Cutout_direcory for User 01'
+elif platform.node() == 'Computername_User_02':
+    CUTOUT_DIRECTORY = r'Cutout_direcory for User 02'
+else:
+    CUTOUT_DIRECTORY = r"C:\MasalaAtlite\ATLITE\cutouts"
+if not os.path.isdir(CUTOUT_DIRECTORY):
+    os.mkdir(CUTOUT_DIRECTORY)
+    print('Local cutout-directory "' + CUTOUT_DIRECTORY + '" created.')
+if platform.system()=='Linux':
+    DIR_SEP = r"/"
+else:
+    DIR_SEP = r"\\"
 
 # <codecell>
 # =============================================================================
 # Download Necessary Data Files
 # =============================================================================
 # Define function to download files
-def download_file(url, local_filename):
+def download_file(url, local_directory, local_filename):
     """Downloads a file if it doesn't exist already"""
     # variant of http://stackoverflow.com/a/16696317
-    if not os.path.exists(local_filename):
+    local_filepath = local_directory + DIR_SEP + local_filename
+    if not os.path.isdir(local_directory):
+        os.mkdir(local_directory)
+        print('Local download directory "' + local_directory + '" created.')
+    if not os.path.exists(local_filepath):
         req = requests.get(url, stream=True)
-        with open(local_filename, 'wb') as file:
+        with open(local_filepath, 'wb') as file:
             for chunk in req.iter_content(chunk_size=1024):
                 if chunk:
                     file.write(chunk)
-    return local_filename
+    return local_filepath
 
 # <codecell>
 # Reference time-series from Open-Power-System-Data (OPSD)
@@ -75,6 +106,7 @@ OPSD_FN = download_file('https://data.open-power-system-data.org/index.php?' \
                         'D=DE&filter%5BVariable%5D%5B%5D=solar_generati' \
                         'on_actual&filter%5BVariable%5D%5B%5D=wind_gene' \
                         'ration_actual&downloadCSV=Download+CSV',
+                        DOWNLOAD_DIR,
                         'time_series_60min_singleindex_filtered.csv')
 
 
@@ -93,11 +125,12 @@ opsd = opsd[(opsd.index > "2011") & (opsd.index < "2013")]
 # Installed Capacities in Germany (Anlagenregister) - Zip file
 EEG_FN = download_file('http://www.energymap.info/download/eeg_'
                        'anlagenregister_2015.08.utf8.csv.zip',
-                        'eeg_anlagenregister_2015.08.utf8.csv.zip')
+                       DOWNLOAD_DIR,
+                       'eeg_anlagenregister_2015.08.utf8.csv.zip')
 
 # Create ZipFile object 'zip_ref' with generator data
 with zipfile.ZipFile(EEG_FN, "r") as zip_ref:
-    zip_ref.extract("eeg_anlagenregister_2015.08.utf8.csv")
+    zip_ref.extract("eeg_anlagenregister_2015.08.utf8.csv",DOWNLOAD_DIR)
 
 # <codecell>
 # =============================================================================
@@ -116,11 +149,10 @@ de = gpd.GeoSeries({**de_record.attributes, 'geometry':de_record.geometry})
 # (de['geometry']), i.e. convert shape to rectangle coordinates
 x1, y1, x2, y2 = de['geometry'].bounds
 
-# Define cutout name and directory
-CUTOUT_DIRECTORY = r"C:\MasalaAtlite\ATLITE\cutouts"
 CUTOUT_NAME = 'Cutout_DE_01'
+
 # Create cutout if it doesn't exist already
-if not os.path.isdir(CUTOUT_DIRECTORY + "\\" + CUTOUT_NAME):
+if not os.path.isdir(CUTOUT_DIRECTORY + DIR_SEP + CUTOUT_NAME):
     cutout = atlite.Cutout(name = CUTOUT_NAME,
                             cutout_dir=CUTOUT_DIRECTORY,
                             module='era5',
@@ -168,7 +200,8 @@ def capacity_layout(cutout_input, typ, cap_range=None, until=None):
                         ('capacity', 8), ('level', 9),
                         ('lat', 19), ('lon', 20),
                         ('validation', 22)))
-    database = pd.read_csv('eeg_anlagenregister_2015.08.utf8.csv',
+    database = pd.read_csv(DOWNLOAD_DIR + DIR_SEP + \
+                           'eeg_anlagenregister_2015.08.utf8.csv',
                        sep=';', decimal=',', thousands='.',
                        comment='#', header=None,
                        usecols=list(cols.values()),
@@ -259,10 +292,10 @@ pv = cutout.pv(panel="CSi",
 compare = pd.DataFrame(dict(atlite=pv.to_pandas().iloc[0],
                             opsd=opsd['DE_solar_generation_actual'])) /1e3 #GW
 
-# compare.resample('1W').mean().plot(figsize=(8,5))
-# plt.ylabel("Feed-In [GW]")
-# plt.title('PV time-series Germany 2012')
-# plt.tight_layout()
+compare.resample('1W').mean().plot(figsize=(8,5))
+plt.ylabel("Feed-In [GW]")
+plt.title('PV time-series Germany 2012')
+plt.tight_layout()
 
 
 # <codecell>
